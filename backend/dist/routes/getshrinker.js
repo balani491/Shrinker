@@ -15,27 +15,39 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const client_1 = require("@prisma/client");
 const dotenv_1 = __importDefault(require("dotenv"));
-const verify_1 = __importDefault(require("../middleware/verify")); // Make sure this middleware is implemented
+const verify_1 = __importDefault(require("../middleware/verify"));
 dotenv_1.default.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 const prisma = new client_1.PrismaClient();
 const getShrinkerRouter = express_1.default.Router();
-// Helper function to generate a random short URL
 const generateRandomShortUrl = () => {
-    return Math.random().toString(36).substring(2, 8); // Generates a random string
+    return Math.random().toString(36).substring(2, 8);
 };
 //@ts-ignore
+getShrinkerRouter.get("/statistics", verify_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const urls = yield prisma.url.findMany({
+            where: {
+                //@ts-ignore
+                userId: req.userId,
+            },
+        });
+        res.status(200).json(urls);
+    }
+    catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}));
 getShrinkerRouter.post("/random", verify_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { originalUrl } = req.body; // No validation, directly accessing the body
+        const { originalUrl } = req.body;
         const shortUrl = generateRandomShortUrl();
-        // Create a new URL entry in the database
         const createdUrl = yield prisma.url.create({
             data: {
                 originalUrl: originalUrl,
                 shortUrl: shortUrl,
                 //@ts-ignore
-                userId: req.userId, // Assuming authMiddleware sets req.userId
+                userId: req.userId,
             },
         });
         res.status(201).json({
@@ -51,8 +63,7 @@ getShrinkerRouter.post("/random", verify_1.default, (req, res) => __awaiter(void
 //@ts-ignore
 getShrinkerRouter.post("/custom", verify_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { originalUrl, customShortUrl } = req.body; // No validation, directly accessing the body
-        // Check if the custom short URL already exists
+        const { originalUrl, customShortUrl } = req.body;
         const existingUrl = yield prisma.url.findUnique({
             where: { shortUrl: customShortUrl },
         });
@@ -61,13 +72,12 @@ getShrinkerRouter.post("/custom", verify_1.default, (req, res) => __awaiter(void
                 message: "Custom short URL already taken.",
             });
         }
-        // Create a new URL entry in the database
         const createdUrl = yield prisma.url.create({
             data: {
                 originalUrl: originalUrl,
                 shortUrl: customShortUrl,
                 //@ts-ignore    
-                userId: req.userId, // Assuming authMiddleware sets req.userId
+                userId: req.userId,
             },
         });
         res.status(201).json({

@@ -13,11 +13,12 @@ export default function Dashboard() {
   
 
   const handleCustomShorten = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!customUrl || !customShortUrl) {
-      toast.error("Please enter both the original URL and custom short URL.")
-      return
+      toast.error("Please enter both the original URL and custom short URL.");
+      return;
     }
+    
     const token = localStorage.getItem('token');
     if (!token) {
       console.error('No token found in local storage');
@@ -26,22 +27,32 @@ export default function Dashboard() {
     }
 
     try {
-      //@ts-ignore
+        //@ts-ignore
       const response = await axios.post("http://localhost:3000/api/v1/getshrinker/custom", {
         originalUrl: customUrl,
-        shortUrl: customShortUrl
+        customShortUrl
       },{
         headers: {
           'Authorization': `Bearer ${token}`
         }
-      })
-      setShortenedUrl(`https://localhost:3000/${customShortUrl}`)
+      });
+      setShortenedUrl(`http://localhost:3000/${customShortUrl}`);
     } catch (error: any) {
-      console.error("Error in custom shorten:", error)
-      const errorMessage = error.response?.data?.message || "An error occurred during getshrinker/custom"
-      toast.error(errorMessage)
+      if (error.response) {
+        // Check for status code 409
+        if (error.response.status === 409) {
+          toast.error(error.response.data.message || "Custom short URL already taken.");
+        } else {
+          const errorMessage = error.response.data.message || "An error occurred during getshrinker/custom";
+          toast.error(errorMessage);
+        }
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
+      console.error("Error in custom shorten:", error);
     }
-  }
+};
+
 
   const handleRandomShorten = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -68,7 +79,7 @@ export default function Dashboard() {
           'Authorization': `Bearer ${token}`
         }
       })
-      setShortenedUrl(`https://localhost:3000/${response.data.shortUrl}`)
+      setShortenedUrl(`http://localhost:3000/${response.data.shortUrl}`)
     } catch (error: any) {
       console.error("Error in random shorten:", error)
       const errorMessage = error.response?.data?.message || "An error occurred during getshrinker/random"

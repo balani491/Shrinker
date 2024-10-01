@@ -15,19 +15,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const index_1 = __importDefault(require("./routes/index"));
-const client_1 = require("@prisma/client"); // Import PrismaClient to access the database
+const client_1 = require("@prisma/client");
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use("/api/v1", index_1.default);
-// Initialize Prisma Client
 const prisma = new client_1.PrismaClient();
-// Add logic for redirecting from short URL to original URL
 //@ts-ignore
 app.get('/:shortUrl', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { shortUrl } = req.params; // Get the short URL from the request parameters
+    const { shortUrl } = req.params;
     try {
-        // Find the URL in the database using the short URL
         const urlEntry = yield prisma.url.findUnique({
             where: { shortUrl },
         });
@@ -37,20 +34,17 @@ app.get('/:shortUrl', (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 data: { visits: { increment: 1 } },
             });
             const originalUrl = urlEntry.originalUrl;
-            // If originalUrl is just 'www.google.com', prepend 'http://' or 'https://'
             const fullUrl = originalUrl.startsWith('http://') || originalUrl.startsWith('https://')
                 ? originalUrl
-                : `http://${originalUrl}`; // Here you can decide whether to use http or https.
+                : `http://${originalUrl}`;
             // Redirect to the original URL
             return res.redirect(fullUrl);
         }
         else {
-            // If the URL does not exist, send a 404 response
             return res.status(404).json({ message: "Short URL not found" });
         }
     }
     catch (error) {
-        // Handle any errors that occur during the database lookup
         console.error(error);
         return res.status(500).json({ message: "Internal server error" });
     }

@@ -81,7 +81,7 @@ getShrinkerRouter.post("/custom", authMiddleware, async (req, res) => {
         
         const createdUrl = await prisma.url.create({
             data: {
-                originalUrl: originalUrl,
+                originalUrl : originalUrl,
                 shortUrl: customShortUrl,
                 //@ts-ignore    
                 userId: req.userId, 

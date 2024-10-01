@@ -17,40 +17,33 @@ const client_1 = require("@prisma/client");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const zod_1 = __importDefault(require("zod"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const bcryptjs_1 = __importDefault(require("bcryptjs")); // Use bcrypt to hash and compare passwords
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 dotenv_1.default.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 const prisma = new client_1.PrismaClient();
-// Define the body schema for sign-in request
 const signinBody = zod_1.default.object({
-    email: zod_1.default.string().email(), // Using email instead of username
+    email: zod_1.default.string().email(),
     password: zod_1.default.string(),
 });
 const SignInRouter = express_1.default.Router();
 //@ts-ignore
 SignInRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Parse the request body using zod schema
         const { email, password } = signinBody.parse(req.body);
-        // Find the user by their email address
         const user = yield prisma.user.findUnique({
             where: {
-                email: email, // Prisma schema uses email
+                email: email,
             },
         });
-        // If user doesn't exist or password is incorrect, return error
         if (!user || !user.password || !(yield bcryptjs_1.default.compare(password, user.password))) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
         // console.log(user.id)
         // console.log(typeof user.id)
-        // Generate a JWT token with user ID in the payload
         const token = jsonwebtoken_1.default.sign({ userId: Number(user.id) }, JWT_SECRET, { expiresIn: '1h' });
-        // Return the JWT token
         res.json({ token });
     }
     catch (error) {
-        // Return error if validation fails or any other error occurs
         res.status(400).json({ message: error.message });
     }
 }));

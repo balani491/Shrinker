@@ -13,6 +13,4 @@ const prisma = new client_1.PrismaClient();
 router.use("/signup", signup_1.default);
 router.use("/signin", signin_1.default);
 router.use("/getshrinker", getshrinker_1.default);
-// Get the original URL by the short URL
-//@ts-ignore
 exports.default = router;
