@@ -1,0 +1,50 @@
+// This is your Prisma schema file
+// Learn more about Prisma Schema at: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Your PostgreSQL database URL in .env
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String 
+  urls      Url[]    // A user can have many URLs
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Url {
+  id         Int      @id @default(autoincrement())
+  originalUrl String
+  shortUrl    String @unique
+  userId     Int
+  owner      User     @relation(fields: [userId], references: [id])
+  visits      Int      @default(0) // Number of times the short URL has been visited  
+}
+
+// model Url {
+//   id         Int      @id @default(autoincrement())
+//   originalUrl String
+//   shortUrl    String   @unique
+//   ownerId     Int      // The ID of the user who created the URL
+//   owner       User     @relation(fields: [ownerId], references: [id])
+//   visits      Int      @default(0) // Number of times the short URL has been visited
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
+  
+// }
+
+// model Click {
+//   id       Int      @id @default(autoincrement())
+//   urlId    Int      // Foreign key to the URL
+//   url      Url      @relation(fields: [urlId], references: [id])
+//   clickedAt DateTime @default(now())
+//   ipAddress String   // IP address of the user who clicked the link (optional for statistics)
+//   userAgent String?  // Optional: User agent string for additional analytics
+// }
