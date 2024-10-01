@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Scissors, BarChart2, ArrowUpDown } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 interface StatItem {
   originalUrl: string
@@ -14,17 +16,24 @@ export default function Statistics() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
   useEffect(() => {
-    // Simulating API call to fetch statistics
     const fetchStats = async () => {
-      // In a real application, replace this with an actual API call
-      const mockData: StatItem[] = [
-        { originalUrl: 'https://example.com', shortUrl: 'https://shrink.er/abc123', visits: 1500 },
-        { originalUrl: 'https://longurlexample.com', shortUrl: 'https://shrink.er/def456', visits: 2300 },
-        { originalUrl: 'https://anotherdomain.org', shortUrl: 'https://shrink.er/ghi789', visits: 800 },
-        { originalUrl: 'https://websitetest.net', shortUrl: 'https://shrink.er/jkl012', visits: 3100 },
-        { originalUrl: 'https://sampleurl.io', shortUrl: 'https://shrink.er/mno345', visits: 950 },
-      ]
-      setStats(mockData)
+      const token = localStorage.getItem('token')
+      if (!token) {
+        toast.error('No token found. Please sign in.')
+        return
+      }
+
+      try {
+        const response = await axios.get("http://localhost:3000/api/v1/getshrinker/statistics", {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        setStats(response.data)
+      } catch (error) {
+        console.error("Error fetching statistics:", error)
+        toast.error("An error occurred while fetching statistics.")
+      }
     }
 
     fetchStats()
@@ -107,7 +116,9 @@ export default function Statistics() {
                 <tr key={index}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.originalUrl}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline">
-                    <a href={item.shortUrl} target="_blank" rel="noopener noreferrer">{item.shortUrl}</a>
+                    <a href={`http://localhost:3000/${item.shortUrl}`} target="_blank" rel="noopener noreferrer">
+                      {`http://localhost:3000/${item.shortUrl}`}
+                    </a>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.visits}</td>
                 </tr>
