@@ -28,23 +28,3 @@ model Url {
   visits      Int      @default(0) // Number of times the short URL has been visited  
 }
 
-// model Url {
-//   id         Int      @id @default(autoincrement())
-//   originalUrl String
-//   shortUrl    String   @unique
-//   ownerId     Int      // The ID of the user who created the URL
-//   owner       User     @relation(fields: [ownerId], references: [id])
-//   visits      Int      @default(0) // Number of times the short URL has been visited
-//   createdAt   DateTime @default(now())
-//   updatedAt   DateTime @updatedAt
-  
-// }
-
-// model Click {
-//   id       Int      @id @default(autoincrement())
-//   urlId    Int      // Foreign key to the URL
-//   url      Url      @relation(fields: [urlId], references: [id])
-//   clickedAt DateTime @default(now())
-//   ipAddress String   // IP address of the user who clicked the link (optional for statistics)
-//   userAgent String?  // Optional: User agent string for additional analytics
-// }
