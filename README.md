@@ -1,5 +1,5 @@
 # Shrinker
-
+Screen Recording Link: https://drive.google.com/file/d/1eYB4aEq-4e6VZwAU7IRikoSUUGr8CVSR/view?usp=sharing
 Shrinker is a URL shortening service that provides simple and efficient URL shortening capabilities along with detailed statistics for each shortened URL. This repository contains both the frontend and backend components.
 
 ## Features
